@@ -1,8 +1,8 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -10,19 +10,42 @@ import { Label } from "@/components/ui/label"
 import { Server, Lock, Mail } from "lucide-react"
 
 export default function LoginPage() {
+  const router = useRouter()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [remember, setRemember] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
+    setError(null)
 
-    // Simulate login
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include", // importante para cookies
+        body: JSON.stringify({ email, password, remember }),
+      })
 
-    // Redirect to dashboard
-    window.location.href = "/"
+      const data = await res.json().catch(() => ({}))
+
+      if (!res.ok) {
+        // ajusta según el shape de tu API
+        const msg = data?.error || data?.message || "Invalid credentials"
+        setError(msg)
+        return
+      }
+
+      // Éxito: el route handler ya guardó el access_token en cookie httpOnly
+      router.replace("/") // o a donde quieras
+    } catch {
+      setError("Network error")
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -81,6 +104,8 @@ export default function LoginPage() {
                 <input
                   type="checkbox"
                   className="h-4 w-4 rounded border-border bg-background text-primary focus:ring-primary"
+                  checked={remember}
+                  onChange={(e) => setRemember(e.target.checked)}
                 />
                 Remember me
               </label>
@@ -88,6 +113,12 @@ export default function LoginPage() {
                 Forgot password?
               </Link>
             </div>
+
+            {!!error && (
+              <p className="text-sm text-red-600">
+                {error}
+              </p>
+            )}
 
             <Button
               type="submit"
@@ -106,7 +137,7 @@ export default function LoginPage() {
           </form>
 
           <div className="mt-6 text-center text-sm text-muted-foreground">
-            Don't have an account?{" "}
+            Don&apos;t have an account?{" "}
             <Link href="/register" className="text-primary hover:text-primary/80 transition-colors font-medium">
               Create one
             </Link>

@@ -1,0 +1,11 @@
+services:
+  app:
+    build: .
+    image: autohost-cloud-lite
+    ports:
+      - "3002:3000"
+    env_file:
+      - .env.local
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped

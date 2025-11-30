@@ -1,0 +1,44 @@
+name: CI/CD - Frontend
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-push:
+    name: 🔨 Build & Push Frontend to GHCR
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ secrets.GHCR_USERNAME }}
+          password: ${{ secrets.GHCR_TOKEN }}
+
+      - name: Build & Push frontend image
+        uses: docker/build-push-action@v5
+        with:
+          context: .                        # raíz del repo
+          file: Dockerfile           # Dockerfile del frontend
+          push: true
+          tags: ghcr.io/${{ secrets.GHCR_USERNAME }}/autohost-cloud-lite:latest
+
+  deploy:
+    name: 🚀 Deploy Frontend (Runner)
+    runs-on: self-hosted
+    needs: build-and-push
+
+    steps:
+      - name: Login a GHCR
+        run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
+
+      - name: Pull imagen frontend
+        run: docker pull ghcr.io/${{ secrets.GHCR_USERNAME }}/autohost-cloud-lite:latest
+
+      - name: Reiniciar servicio frontend
+        run: docker compose -f ~/projects/autohost-cloud-lite/compose.yml up -d
