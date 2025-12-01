@@ -23,12 +23,13 @@ export default function LoginPage() {
     setError(null)
 
     try {
-      const res = await fetch("/api/auth/login", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include", // importante para cookies
+        credentials: "include", 
         body: JSON.stringify({ email, password, remember }),
       })
+
 
       const data = await res.json().catch(() => ({}))
 

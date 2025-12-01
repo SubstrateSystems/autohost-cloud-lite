@@ -12,7 +12,7 @@ export async function backendFetch(
   accessToken?: string
 ) {
   const url =
-    (process.env.BACKEND_URL ?? "http://localhost:8080") + input;
+    (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080") + input;
 
   const headers = new Headers(init.headers || {});
   if (accessToken) {
@@ -20,7 +20,6 @@ export async function backendFetch(
   }
   headers.set("Content-Type", headers.get("Content-Type") || "application/json");
 
-  // MUY IMPORTANTE: incluir credentials para que viaje la cookie refresh del backend
   return fetch(url, {
     ...init,
     headers,
