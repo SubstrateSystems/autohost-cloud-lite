@@ -36,9 +36,33 @@ export default function RegisterPage() {
     }
 
     setIsLoading(true)
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+        }),
+      })
 
-    // Simulate registration
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+      const data = await res.json().catch(() => ({}))
+
+      if (!res.ok) {
+        const msg = data?.error || data?.message || "Registration failed"
+        setError(msg)
+        return
+      }
+
+      // Registration successful
+    } catch {
+      setError("Network error")
+    } finally {
+      setIsLoading(false)
+    }
+   
+    
 
     // Redirect to dashboard
     window.location.href = "/"
