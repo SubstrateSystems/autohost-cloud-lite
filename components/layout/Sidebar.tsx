@@ -2,32 +2,38 @@
 
 import { LayoutDashboard, Server, AlertTriangle, Settings } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useRouter, usePathname } from "next/navigation"
 
-interface SidebarProps {
-  activeView: "dashboard" | "nodes" | "alerts" | "settings"
-  onViewChange: (view: "dashboard" | "nodes" | "alerts" | "settings") => void
-}
+export function Sidebar() {
+  const router = useRouter()
+  const pathname = usePathname()
 
-export function Sidebar({ activeView, onViewChange }: SidebarProps) {
   const menuItems = [
-    { id: "dashboard" as const, label: "Dashboard", icon: LayoutDashboard },
-    { id: "nodes" as const, label: "Nodes", icon: Server },
-    { id: "alerts" as const, label: "Alerts", icon: AlertTriangle },
-    { id: "settings" as const, label: "Settings", icon: Settings },
+    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, path: "/" },
+    { id: "nodes", label: "Nodes", icon: Server, path: "/nodes" },
+    { id: "alerts", label: "Alerts", icon: AlertTriangle, path: "/alerts" },
+    { id: "settings", label: "Settings", icon: Settings, path: "/settings" },
   ]
+
+  const isActive = (path: string) => {
+    if (path === "/") return pathname === "/"
+    return pathname?.startsWith(path)
+  }
 
   return (
     <aside className="flex w-64 flex-col border-r border-border bg-sidebar">
       <nav className="flex-1 space-y-1 p-4">
         {menuItems.map((item) => {
           const Icon = item.icon
+          const active = isActive(item.path)
+          
           return (
             <button
               key={item.id}
-              onClick={() => onViewChange(item.id)}
+              onClick={() => router.push(item.path)}
               className={cn(
                 "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
-                activeView === item.id
+                active
                   ? "bg-sidebar-accent text-sidebar-accent-foreground"
                   : "text-sidebar-foreground hover:bg-sidebar-accent/50",
               )}

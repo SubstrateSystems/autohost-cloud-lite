@@ -3,8 +3,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
-import { Cpu, HardDrive, MemoryStick } from "lucide-react"
+import { Cpu, HardDrive, MemoryStick, Clock } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { getTimeSinceLastSeen } from "@/lib/utils/node-status"
 
 interface Container {
   name: string
@@ -19,6 +20,7 @@ interface Server {
   ram: number
   disk: number
   containers: Container[]
+  lastSeenAt?: string
 }
 
 interface ServerCardProps {
@@ -78,6 +80,18 @@ export function ServerCard({ server }: ServerCardProps) {
               <span className="font-medium text-foreground">{server.disk}%</span>
             </div>
             <Progress value={server.disk} className="h-2" />
+          </div>
+
+          <div className="border-t border-border pt-2 mt-1">
+            <div className="flex items-center justify-between text-sm">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Clock className="h-4 w-4" />
+                <span>Last Seen</span>
+              </div>
+              <span className="text-xs font-medium text-foreground">
+                {getTimeSinceLastSeen(server.lastSeenAt)}
+              </span>
+            </div>
           </div>
         </div>
 

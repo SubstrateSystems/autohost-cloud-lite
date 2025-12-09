@@ -1,15 +1,20 @@
 import { NextResponse } from "next/server";
-import { backendFetch, proxySetCookie } from "@/lib/api";
-import { clearAccessTokenCookie } from "@/lib/cookies";
+import { logoutBackend } from "@/lib/api/auth";
+import {proxySetCookie } from "@/lib/api";
+import { clearAccessTokenCookie, getAccessTokenFromCookie } from "@/lib/cookies";
 
 export async function POST() {
-  const res = await backendFetch("/v1/auth/logout", { method: "POST" });
+  const accessToken = await getAccessTokenFromCookie();
 
-  const data = await res.json().catch(() => ({}));
-  const out = NextResponse.json(data, { status: res.status });
+  if (accessToken) {
+    const res = await logoutBackend(accessToken);
+    const data = await res.json().catch(() => ({}));
+    const out = NextResponse.json(data, { status: res.status });
+    proxySetCookie(res, out);
+    await clearAccessTokenCookie();
+    return out;
+  }
 
-  await proxySetCookie(res, out);
-  clearAccessTokenCookie();
-
-  return out;
+  await clearAccessTokenCookie();
+  return NextResponse.json({ message: "Logged out" }, { status: 200 });
 }

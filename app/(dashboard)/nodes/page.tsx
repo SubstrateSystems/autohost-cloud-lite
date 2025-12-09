@@ -3,43 +3,29 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useNodes } from "@/lib/hooks/useNodes"
+import { getTimeSinceLastSeen } from "@/lib/utils/node-status"
+import { Loader2 } from "lucide-react"
 
-const mockNodes = [
-  {
-    hostname: "rpi4",
-    ip: "192.168.1.100",
-    os: "Ubuntu 22.04",
-    uptime: "45d 12h",
-    lastSeen: "2 min ago",
-    status: "online" as const,
-  },
-  {
-    hostname: "vps-prod-01",
-    ip: "45.123.67.89",
-    os: "Debian 12",
-    uptime: "120d 5h",
-    lastSeen: "1 min ago",
-    status: "online" as const,
-  },
-  {
-    hostname: "homelab-nas",
-    ip: "192.168.1.150",
-    os: "TrueNAS Scale",
-    uptime: "0d 0h",
-    lastSeen: "2h ago",
-    status: "offline" as const,
-  },
-  {
-    hostname: "k3s-master",
-    ip: "10.0.0.10",
-    os: "Ubuntu 24.04",
-    uptime: "30d 8h",
-    lastSeen: "30 sec ago",
-    status: "online" as const,
-  },
-]
+export default function NodesPage() {
+  const { nodes, isLoading, error } = useNodes()
 
-export function NodesView() {
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-[50vh]">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-[50vh]">
+        <p className="text-destructive">{error}</p>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -64,13 +50,13 @@ export function NodesView() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {mockNodes.map((node) => (
-                <TableRow key={node.hostname}>
-                  <TableCell className="font-medium">{node.hostname}</TableCell>
-                  <TableCell className="font-mono text-sm">{node.ip}</TableCell>
-                  <TableCell>{node.os}</TableCell>
-                  <TableCell>{node.uptime}</TableCell>
-                  <TableCell className="text-muted-foreground">{node.lastSeen}</TableCell>
+              {nodes.map((node) => (
+                <TableRow key={node.id}>
+                  <TableCell className="font-medium">{node.name}</TableCell>
+                  <TableCell className="font-mono text-sm">{node.ipLocal || "N/A"}</TableCell>
+                  <TableCell>{node.os || "N/A"}</TableCell>
+                  <TableCell>N/A</TableCell>
+                  <TableCell className="text-muted-foreground">{getTimeSinceLastSeen(node.lastSeenAt)}</TableCell>
                   <TableCell>
                     <Badge
                       variant={node.status === "online" ? "default" : "destructive"}

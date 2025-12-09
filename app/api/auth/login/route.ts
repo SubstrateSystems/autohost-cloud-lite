@@ -1,24 +1,27 @@
 import { NextResponse } from "next/server";
-import { backendFetch, proxySetCookie } from "@/lib/api";
-import { setAccessTokenCookie, clearAccessTokenCookie } from "@/lib/cookies";
+import { loginBackend } from "@/lib/api/auth";
+import { clearAccessTokenCookie, setAccessTokenCookie } from "@/lib/cookies";
+import { proxySetCookie } from "@/lib/api";
 
 export async function POST(req: Request) {
   const body = await req.json();
 
-  const res = await backendFetch("/v1/auth/login", {
-    method: "POST",
-    body: JSON.stringify(body),
-  });
-
+  const res = await loginBackend(body);
   const data = await res.json().catch(() => ({}));
 
-  const out = NextResponse.json(data, { status: res.status });
-  await proxySetCookie(res, out);
+  console.log("[LOGIN] Response status:", res.status);
+  console.log("[LOGIN] Has access_token:", !!data?.access_token);
 
   if (res.ok && data?.access_token) {
-    setAccessTokenCookie(data.access_token);
+    console.log("[LOGIN] Setting cookie with token:", data.access_token.substring(0, 20) + "...");
+    await setAccessTokenCookie(data.access_token);
   } else {
-    clearAccessTokenCookie();
+    console.log("[LOGIN] Clearing cookie");
+    await clearAccessTokenCookie();
   }
+
+  const out = NextResponse.json(data, { status: res.status });
+  proxySetCookie(res, out);
+
   return out;
 }
