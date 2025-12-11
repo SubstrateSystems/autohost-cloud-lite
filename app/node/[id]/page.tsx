@@ -431,3 +431,6 @@
 //     </div>
 //   )
 // }
+export default function NodeDetailPage() {
+  return <div>Node Detail Page - Under Construction</div>
+}
