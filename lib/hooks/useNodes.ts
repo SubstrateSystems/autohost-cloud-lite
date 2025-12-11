@@ -1,9 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import type { Node, NodeBackendResponse } from "@/lib/types";
+import type { Node } from "@/lib/types";
 import { fetchWithAuth } from "@/lib/api/fetch-client";
-import { calculateNodeStatus } from "@/lib/utils/node-status";
 
 /**
  * Hook para obtener y gestionar la lista de nodos
@@ -18,33 +17,16 @@ export function useNodes() {
     try {
       if (showUpdating) setIsUpdating(true);
 
-      const res = await fetchWithAuth("/api/nodes");
+      const res = await fetchWithAuth("/api/nodes/with-metrics");
 
       if (!res.ok) {
         throw new Error("Failed to fetch nodes");
       }
 
-      const data: NodeBackendResponse[] = await res.json();
+      // Los nodos ya vienen mapeados y con el estado calculado desde el servidor
+      const nodes: Node[] = await res.json();
 
-      // Mapear los datos del backend al formato de la UI
-      const mappedNodes: Node[] = data.map((node) => ({
-        id: node.ID,
-        name: node.Hostname,
-        status: calculateNodeStatus(node.LastSeenAt),
-        cpu: 0,
-        ram: 0,
-        disk: 0,
-        containers: [],
-        ipLocal: node.IPLocal,
-        os: node.OS,
-        arch: node.Arch,
-        versionAgent: node.VersionAgent,
-        lastSeenAt: node.LastSeenAt,
-        createdAt: node.CreatedAt,
-        updatedAt: node.UpdatedAt,
-      }));
-
-      setNodes(mappedNodes);
+      setNodes(nodes);
       setError(null);
     } catch (err) {
       console.error("Error fetching nodes:", err);

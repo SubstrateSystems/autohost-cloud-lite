@@ -17,6 +17,7 @@ export const API_ENDPOINTS = {
   },
   NODES: {
     LIST: "/v1/nodes",
+    WITH_METRICS: "/v1/nodes/with-metrics",
     DETAIL: (id: string) => `/v1/nodes/${id}`,
   },
 } as const;
