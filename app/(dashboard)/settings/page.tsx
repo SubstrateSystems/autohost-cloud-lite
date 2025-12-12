@@ -1,13 +1,32 @@
 "use client"
 
+import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Copy, Check } from "lucide-react"
 
 export default function SettingsPage() {
+  const [apiKey, setApiKey] = useState<string | null>(null)
+  const [copied, setCopied] = useState(false)
+
+  const generateApiKey = () => {
+    // Generate a random API key
+    const newKey = `sk_${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`
+    setApiKey(newKey)
+  }
+
+  const copyToClipboard = async () => {
+    if (apiKey) {
+      await navigator.clipboard.writeText(apiKey)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -22,17 +41,41 @@ export default function SettingsPage() {
             <CardDescription>Manage your API keys and authentication</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="api-key">API Key</Label>
-              <Input
-                id="api-key"
-                type="password"
-                placeholder="••••••••••••••••"
-                defaultValue="sk_test_1234567890abcdef"
-              />
-              <p className="text-xs text-muted-foreground">Used to authenticate with AutoHost-CLI agents</p>
-            </div>
-            <Button>Regenerate API Key</Button>
+            {apiKey ? (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="api-key">API Key</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="api-key"
+                      type="text"
+                      value={apiKey}
+                      readOnly
+                      className="font-mono text-sm"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      onClick={copyToClipboard}
+                    >
+                      {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Copy this token now. It won't be shown again after you reload the page.
+                  </p>
+                </div>
+                <Button onClick={generateApiKey}>Regenerate API Key</Button>
+              </>
+            ) : (
+              <>
+                <p className="text-sm text-muted-foreground">
+                  Generate a new API key to enroll nodes with the AutoHost-CLI
+                </p>
+                <Button onClick={generateApiKey}>Generate API Key</Button>
+              </>
+            )}
           </CardContent>
         </Card>
 
