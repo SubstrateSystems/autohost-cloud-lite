@@ -1,6 +1,7 @@
 export async function proxySetCookie(from: Response, to: Response) {
   const setCookie = from.headers.get("set-cookie");
   if (setCookie) {
+    console.log("[proxySetCookie] Proxying cookie:", setCookie.substring(0, 50) + "...");
     to.headers.set("set-cookie", setCookie);
   }
 }
