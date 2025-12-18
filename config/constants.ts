@@ -20,11 +20,9 @@ export const API_ENDPOINTS = {
     WITH_METRICS: "/v1/nodes/with-metrics",
     DETAIL: (id: string) => `/v1/nodes/${id}`,
   },
+  ENROLLMENTS: {
+    CREATE: "/v1/enrollments/generate",
+  }
+
 } as const;
 
-// Environment variables
-// export const ENV = {
-//   BACKEND_URL: process.env.BACKEND_URL || "http://localhost:8080",
-//   NODE_ENV: process.env.NODE_ENV || "development",
-//   IS_PRODUCTION: process.env.NODE_ENV === "production",
-// } as const;

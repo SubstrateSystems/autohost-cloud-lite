@@ -8,15 +8,18 @@ import { Switch } from "@/components/ui/switch"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Copy, Check } from "lucide-react"
+import { useEnrollments } from "@/lib/hooks"
 
 export default function SettingsPage() {
+  const { generateToken, isLoading, error } = useEnrollments()
   const [apiKey, setApiKey] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
 
-  const generateApiKey = () => {
-    // Generate a random API key
-    const newKey = `sk_${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`
-    setApiKey(newKey)
+  const generateApiKey = async () => {
+    const result = await generateToken()
+    if (result.success && result.data) {
+      setApiKey(result.data.token)
+    }
   }
 
   const copyToClipboard = async () => {
@@ -41,6 +44,11 @@ export default function SettingsPage() {
             <CardDescription>Manage your API keys and authentication</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            {error && (
+              <div className="text-sm text-red-500">
+                {error}
+              </div>
+            )}
             {apiKey ? (
               <>
                 <div className="space-y-2">
@@ -66,14 +74,18 @@ export default function SettingsPage() {
                     Copy this token now. It won't be shown again after you reload the page.
                   </p>
                 </div>
-                <Button onClick={generateApiKey}>Regenerate API Key</Button>
+                <Button onClick={generateApiKey} disabled={isLoading}>
+                  {isLoading ? "Generating..." : "Regenerate API Key"}
+                </Button>
               </>
             ) : (
               <>
                 <p className="text-sm text-muted-foreground">
                   Generate a new API key to enroll nodes with the AutoHost-CLI
                 </p>
-                <Button onClick={generateApiKey}>Generate API Key</Button>
+                <Button onClick={generateApiKey} disabled={isLoading}>
+                  {isLoading ? "Generating..." : "Generate API Key"}
+                </Button>
               </>
             )}
           </CardContent>
