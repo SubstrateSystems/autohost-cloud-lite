@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   const access  = req.cookies.get("access_token")?.value
   const refresh = req.cookies.get("refresh_token")?.value
   const isPublic = req.nextUrl.pathname.startsWith("/login")
