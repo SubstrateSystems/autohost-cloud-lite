@@ -1,25 +1,34 @@
 import { cookies } from "next/headers";
-import type { ResponseCookie } from "next/dist/compiled/@edge-runtime/cookies";
 
 export const ACCESS_COOKIE  = "access_token";
 export const REFRESH_COOKIE = "refresh_token";
 
-const IS_PROD = process.env.NODE_ENV === "production";
+// Secure solo si se define explícitamente COOKIE_SECURE=true
+// NODE_ENV=production no implica HTTPS (ej: Docker en red local sin TLS)
+const SECURE = process.env.COOKIE_SECURE === "true";
+
+type CookieOptions = {
+  httpOnly?: boolean;
+  sameSite?: "strict" | "lax" | "none";
+  secure?: boolean;
+  path?: string;
+  maxAge?: number;
+};
 
 /** Opciones para el access_token (vida corta) */
-export const ACCESS_COOKIE_OPTIONS: Partial<ResponseCookie> = {
+export const ACCESS_COOKIE_OPTIONS: CookieOptions = {
   httpOnly: true,
   sameSite: "lax",
-  secure:   IS_PROD,
+  secure:   SECURE,
   path:     "/",
   maxAge:   60 * 60, // 1 hora
 };
 
 /** Opciones para el refresh_token (vida larga) */
-export const REFRESH_COOKIE_OPTIONS: Partial<ResponseCookie> = {
+export const REFRESH_COOKIE_OPTIONS: CookieOptions = {
   httpOnly: true,
   sameSite: "lax",
-  secure:   IS_PROD,
+  secure:   SECURE,
   path:     "/",
   maxAge:   60 * 60 * 24 * 30, // 30 días
 };

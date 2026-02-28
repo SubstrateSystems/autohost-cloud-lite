@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Server, Lock, Mail } from "lucide-react"
 
 export default function LoginPage() {
-  const router = useRouter()
+  const searchParams = useSearchParams()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [remember, setRemember] = useState(false)
@@ -39,8 +39,9 @@ export default function LoginPage() {
         return
       }
 
-      // Éxito: el route handler ya guardó el access_token en cookie httpOnly
-      router.replace("/") // o a donde quieras
+      // Éxito: el route handler ya guardó los tokens en cookies httpOnly
+      // Hard redirect para que el middleware reciba las cookies en la primera request
+      window.location.replace(searchParams?.get("next") ?? "/")
     } catch {
       setError("Network error")
     } finally {
