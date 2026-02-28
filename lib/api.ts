@@ -12,8 +12,12 @@ export async function backendFetch(
   init: RequestInit = {},
   accessToken?: string
 ) {
-  const url =
-    (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080") + input;
+  const baseUrl =
+    typeof window === "undefined"
+      ? process.env.INTERNAL_API_URL ?? "http://host.docker.internal:8090"
+      : process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8090";
+
+  const url = baseUrl + input;
 
   const headers = new Headers(init.headers || {});
   if (accessToken) {

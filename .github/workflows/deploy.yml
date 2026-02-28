@@ -33,6 +33,7 @@ jobs:
           tags: ghcr.io/substratesystems/autohost-cloud-lite:latest
           build-args: |
             NEXT_PUBLIC_API_URL=${{ vars.NEXT_PUBLIC_API_URL }}
+            INTERNAL_API_URL=${{ vars.INTERNAL_API_URL }}
 
           
   deploy:
