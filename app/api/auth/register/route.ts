@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { backendFetch, proxySetCookie } from "@/lib/api";
-import { setAccessTokenCookie, setRefreshTokenCookie } from "@/lib/cookies";
+import { backendFetch } from "@/lib/api";
 
 export async function POST(req: Request) {
   const body = await req.json();
